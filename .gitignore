@@ -1,0 +1,19 @@
+# 실행 파일 — 저장소에는 소스(patch\*.js · 빌드 스크립트)만, exe는 Releases에
+*.exe
+
+# 개인 데이터 (기록 · 프리셋 · 설정 · 생성 이미지 · 캐릭터 폴더 연결)
+LittleLightData/
+
+# 빌드할 때 make.ps1이 다시 만드는 파일
+patch/version.js
+
+# 비교·결과 이미지, 참고 그림 원본(워크플로는 reference\ref_*.png를 씀)
+reference/compare/
+reference/style_ref_*
+reference/artists/*.jpg
+
+# 마녀 화풍 참고 그림은 올리지 않음 (README의 '필요한 파일' 참고)
+ref_witch.png
+
+# 내 빌드 전용 캐릭터 이름 (저장소에 올리지 않음)
+patch/charnames_local.js

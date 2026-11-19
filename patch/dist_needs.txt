@@ -1,0 +1,139 @@
+==============================================================
+  Little Light {VER} — 사용할 때 필요한 것
+==============================================================
+
+[1] 이 폴더에 들어 있는 것
+--------------------------------------------------------------
+  {EXE}
+      프로그램 본체 (전용 창이 알아서 켬 — 직접 실행하면 브라우저로 열림)
+  Little Light.exe   ← 이걸 실행
+      전용 창 프로그램 — 업데이트 확인 → ComfyUI(Comfy Desktop) 켜기 → 앱을 창 없이 켜고 전용 창에 화면 표시.
+      창을 닫으면 앱도 꺼짐. (브라우저 없이 동작, Windows 10/11 기본 WebView2 사용)
+  LittleLightData\workflows\  (워크플로 13개)
+      ComfyUI 연동 워크플로 (exe 안에도 들어 있어서 없어도 됨)
+  reference\ref_pastel_holo.png, ref_bluenight.png
+      화풍 참고 그림 (exe 안에도 들어 있음)
+  update.ps1 / update.txt
+      자동 업데이트용 (Little Light.exe가 씀 — 아래 [6])
+  사용 안내.md / TAGDATA_LICENSE.txt
+      기능 설명 / 내장 태그 데이터 라이선스(MIT)
+
+
+[2] exe 하나만으로 되는 것
+--------------------------------------------------------------
+  - 워크플로는 exe가 갖고 있다가 생성할 때마다 ComfyUI API로 통째로 보냄
+    → ComfyUI 화면의 워크플로 목록에 없어도 됨
+  - 앱 화면을 열면 ComfyUI에 연결되는 순간 자동 설정
+      · 참고 그림 2장이 ComfyUI input 폴더에 없으면 올림
+      · 워크플로 13개 중 앱에 없는 것을 등록
+      · 모델 파일 이름이 다르면(Civitai 원래 이름 · .pth 등) 워크플로를 그 이름으로 맞춤
+  - 그래서 exe 파일 하나만 옮겨도 동작함. ComfyUI 쪽에는 아래 [3]의 모델·노드만 있으면 됨
+
+
+[3] 따로 준비해야 하는 것
+--------------------------------------------------------------
+  ■ Windows 10/11 (64비트)
+  ■ Microsoft Edge WebView2 런타임 — Windows 10/11에 기본으로 있음
+      (없으면 전용 창이 받는 곳을 알려 줌: https://go.microsoft.com/fwlink/p/?LinkId=2124703)
+
+  ■ ComfyUI — Comfy Desktop 권장
+      Little Light.exe는 아래 위치의 Comfy Desktop을 찾아서 켬
+        %LOCALAPPDATA%\Programs\Comfy Desktop\Comfy Desktop.exe
+      ComfyUI 주소: http://127.0.0.1:8188 (다르면 프로그램 설정 탭에서 지정)
+
+  ■ ComfyUI 커스텀 노드 (ComfyUI Manager로 설치하거나 ComfyUI\custom_nodes 에 받기)
+      - ComfyUI_IPAdapter_plus      https://github.com/cubiq/ComfyUI_IPAdapter_plus
+      - ComfyUI-Impact-Pack         https://github.com/ltdrdata/ComfyUI-Impact-Pack
+      - ComfyUI-Impact-Subpack      https://github.com/ltdrdata/ComfyUI-Impact-Subpack
+      - ComfyUI_UltimateSDUpscale   https://github.com/ssitu/ComfyUI_UltimateSDUpscale
+
+  ■ 모델 파일 (ComfyUI models 폴더 아래)
+      앱 화면을 열면 ComfyUI의 모델 목록을 보고 이름을 자동으로 맞춤 →
+      아래 ( ) 안의 원래 파일 이름 그대로 넣어도 됨 (★ 표시 2개만 이름을 바꿔 넣을 것)
+
+      checkpoints\       waiIllustriousSDXL_v170.safetensors
+                           https://civitai.com/models/827184  — v17.0  (원래 이름: WAI-Nsfw-Illustrious-17)
+      loras\             il_saturation_slider.safetensors · il_color_temp_slider_d1.safetensors
+                           https://civitai.com/models/1093089  — saturation · color_temp 판
+                           (원래 이름: il_saturation_slider_d1 · il_color_temp_slider_d1)
+                         Apocryphal-Pastel-IL_V18.safetensors
+                           https://civitai.com/models/546281  — IL | V1.8 판  (원래 이름: HerrscherAGGA2025_Apocryphal-ULTMT-IL_V2)
+                         smooth-lighting-enhancer-noobai-illustrious.safetensors
+                           https://civitai.com/models/1204179  (원래 이름: SLE_v2 또는 Smooth_Lighting_Enhancer)
+      ipadapter\         noobIPAMARK1_mark1.safetensors
+                           https://civitai.com/models/1000401  (원래 이름: NOOB-IPA-MARK1)
+                           사본: https://huggingface.co/subby2006/noob-ipa
+      clip_vision\     ★ CLIP-ViT-bigG-14-laion2B-39B-b160k.safetensors
+                           https://huggingface.co/h94/IP-Adapter/blob/main/sdxl_models/image_encoder/model.safetensors
+                           (받은 model.safetensors를 위 이름으로 바꿈)
+      upscale_models\    4x-AnimeSharp.safetensors
+                           https://huggingface.co/Kim2091/AnimeSharp  (원래 이름: 4x-AnimeSharp.pth — 그대로 넣어도 됨)
+      background_removal\  birefnet.safetensors  (편집 탭 누끼용 — 없어도 다른 기능은 됨)
+                           https://huggingface.co/Comfy-Org/BiRefNet/blob/main/background_removal/birefnet.safetensors
+      ultralytics\bbox\★ anime_face_detect_v1.4_s.pt
+                           https://huggingface.co/deepghs/anime_face_detection/blob/main/face_detect_v1.4_s/model.pt
+                           (받은 model.pt를 위 이름으로 바꿈)
+  ■ 마녀 화풍 그림 ref_witch.png  (들어 있지 않음)
+      다음 워크플로가 이 그림을 화풍 참조로 씀:
+        Claude_Anime_RefStyle_IPAdapter (1인 기본)
+        Claude_Anime_Duo_2people / Claude_Anime_Party_5people
+        Claude_Anime_WhiteUniform_Duo_2people / _Party_5people
+      원하는 화풍 그림을 ref_witch.png 이름으로 ComfyUI input 폴더에 넣을 것
+        (Comfy Desktop 기본: %LOCALAPPDATA%\Comfy-Desktop\ComfyUI-Shared\input)
+      그림이 없으면 위 워크플로는 오류가 남 —
+      작가 화풍·푸른 밤·파스텔 홀로그램을 고르면 이 그림이 필요 없는 워크플로로 자동 전환됨
+
+
+[4] 실행 방법
+--------------------------------------------------------------
+  1. 위 [3]을 준비
+  2. Little Light.exe 더블클릭 → 전용 창이 뜸 (처음엔 ComfyUI가 켜지는 동안 기다림)
+  3. 브라우저에서 http://127.0.0.1:7866 열기 (Ghost와 동시에 켜도 됨 — Ghost는 7865)
+  - 처음 실행하면 Windows SmartScreen 경고가 뜰 수 있음 → "추가 정보 → 실행"
+  - 데이터(프리셋·기록·설정·생성 이미지 목록)는 이 폴더의 LittleLightData 에 쌓임
+  - 생성 이미지는 ComfyUI output 폴더에 저장됨 (캐릭터별 폴더 저장을 켜면 output\LittleLight\<캐릭터>)
+
+
+[5] 처음 쓸 때 알아 둘 것
+--------------------------------------------------------------
+  - 캐릭터: 기본 캐릭터에는 이름이 없음(외모 설명만 보임).
+      '기본 캐릭터 ▾' 옆 [✎ 캐릭터] 버튼이나 설정 탭에서
+        · 기본 캐릭터에 이름 붙이기 (목록과 저장 폴더에 쓰임)
+        · 내 캐릭터 추가 (이름 · 외모 태그 · 의상 태그 — 성인 캐릭터만)
+  - 가슴 크기: 생성 버튼 위에서 반드시 하나 고름 (작게 / 보통 / 크게 / 아주 크게)
+  - 편집 탭: 그림을 고르고 '배경 제거' → 투명 배경 PNG(누끼). 가장자리 정리 · 여백 자르기 · 배경색을 고른 뒤 다운로드
+    (birefnet.safetensors가 models\background_removal 에 있어야 함 — 위 [3])
+    누끼 권장 값: 가장자리 정리 0~10 · 부드럽게 1px (가는 머리카락 유지)
+      - 배경 잔티·흐린 테두리가 남으면 가장자리 정리 15~25
+      - 30 이상은 머리카락 끝이 사라지고, 부드럽게 2px 이상은 테두리가 흐려짐
+      - 결과가 통째로 비면 자동으로 한 번 다시 시도함
+  - 프롬프트 자동 정리(설정 탭, 기본 켜짐): 생성 직전에 중복 태그를 지우고 핵심 태그를 앞으로 정렬 → 캐릭터 외모·체위가 더 잘 나옴
+  - 남자 얼굴 숨기기: 켜져 있으면 faceless male을 인원 태그 바로 뒤에 가중치 1.3으로 넣음 (남자 얼굴이 덜 그려짐)
+  - 생성 우선순위: 생성 버튼 위 '대기열' 줄 → [대기열 보기 · 순서 바꾸기]에서 작업마다 맨 앞으로 · 맨 뒤로 · 취소 (실행 중은 중단)
+    '새 생성은 맨 앞으로'를 켜면 새로 넣는 생성이 대기열 맨 앞으로 감. 누끼(편집 탭)는 항상 맨 앞
+  - 다시 생성: 생성 결과 아래 · 그림 상세 창 · 연작 결과 칸의 ↻ — 같은 설정, 새 시드
+  - 작가 견본 썸네일은 프로그램 안에 들어 있음.
+    가운데 휠 클릭으로 여는 원본은 ComfyUI output\artist_samples 에 있어야 보임 (없어도 사용에는 지장 없음)
+
+
+[6] 업데이트
+--------------------------------------------------------------
+  - Little Light.exe를 켤 때마다 GitHub의 최신 버전을 확인함
+    새 버전이 있으면 "업데이트할까요?" → 예: 새 exe · 안내문 · 워크플로로 바꾸고 새 버전으로 실행
+    (프리셋 · 기록 · 설정 · 내 캐릭터는 그대로. 인터넷이 안 되면 그냥 지금 버전으로 실행)
+  - 앱이 다른 곳에서 켜져 있으면 바꿀 수 없음 → 끄고 Little Light.exe를 다시 켤 것
+  - 앱 화면에도 새 버전 안내가 뜸 (다운로드 · 바뀐 점), 설정 탭 '업데이트 확인'으로 직접 확인 가능
+  - 받는 곳: https://github.com/Eun-little-light/LittleLight/releases/latest
+  - update.ps1 · update.txt 는 업데이트용 파일이라 지우지 말 것
+
+[7] 만든 사람
+--------------------------------------------------------------
+  Eun_ — 이 프로그램은 Anthropic의 Claude(Claude Code)의 도움을 받아 만들었습니다.
+  - 문제가 생기면: %LOCALAPPDATA%\LittleLight\shell.log 에 실행 기록이 남음
+
+
+[8] 알려 둘 점
+--------------------------------------------------------------
+  개인이 만들어 쓰는 프로그램이라 오류가 있을 수 있습니다.
+  문제가 생기면 https://github.com/Eun-little-light/LittleLight/issues 에 알려 주세요.
+  생성한 그림과 데이터(이 폴더의 데이터 폴더)는 따로 백업해 두는 것을 권합니다.

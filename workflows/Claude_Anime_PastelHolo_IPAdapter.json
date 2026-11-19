@@ -1,0 +1,407 @@
+{
+    "name":  "Claude_Anime_PastelHolo_IPAdapter",
+    "prompt":  {
+                   "1":  {
+                             "_meta":  {
+                                           "ll_pastel":  2,
+                                           "title":  "Checkpoint (WAI Illustrious SDXL v17)"
+                                       },
+                             "class_type":  "CheckpointLoaderSimple",
+                             "inputs":  {
+                                            "ckpt_name":  "waiIllustriousSDXL_v170.safetensors"
+                                        }
+                         },
+                   "10":  {
+                              "_meta":  {
+                                            "title":  "Tiled upscale x1.5"
+                                        },
+                              "class_type":  "UltimateSDUpscale",
+                              "inputs":  {
+                                             "batch_size":  1,
+                                             "cfg":  5,
+                                             "denoise":  0.25,
+                                             "force_uniform_tiles":  true,
+                                             "image":  [
+                                                           "8",
+                                                           0
+                                                       ],
+                                             "mask_blur":  8,
+                                             "mode_type":  "Linear",
+                                             "model":  [
+                                                           "23",
+                                                           0
+                                                       ],
+                                             "negative":  [
+                                                              "3",
+                                                              0
+                                                          ],
+                                             "positive":  [
+                                                              "2",
+                                                              0
+                                                          ],
+                                             "sampler_name":  "euler_ancestral",
+                                             "scheduler":  "normal",
+                                             "seam_fix_denoise":  1,
+                                             "seam_fix_mask_blur":  8,
+                                             "seam_fix_mode":  "None",
+                                             "seam_fix_padding":  16,
+                                             "seam_fix_width":  64,
+                                             "seed":  0,
+                                             "steps":  16,
+                                             "tile_height":  1024,
+                                             "tile_padding":  32,
+                                             "tile_width":  1024,
+                                             "tiled_decode":  true,
+                                             "upscale_by":  1.5,
+                                             "upscale_model":  [
+                                                                   "9",
+                                                                   0
+                                                               ],
+                                             "vae":  [
+                                                         "1",
+                                                         2
+                                                     ]
+                                         }
+                          },
+                   "11":  {
+                              "_meta":  {
+                                            "title":  "SaveImage"
+                                        },
+                              "class_type":  "SaveImage",
+                              "inputs":  {
+                                             "filename_prefix":  "Claude/pastelholo_ipadapter",
+                                             "images":  [
+                                                            "10",
+                                                            0
+                                                        ]
+                                         }
+                          },
+                   "14":  {
+                              "_meta":  {
+                                            "title":  "Slider: Saturation (0 = 원래 채도)"
+                                        },
+                              "class_type":  "LoraLoader",
+                              "inputs":  {
+                                             "clip":  [
+                                                          "1",
+                                                          1
+                                                      ],
+                                             "lora_name":  "il_saturation_slider.safetensors",
+                                             "model":  [
+                                                           "1",
+                                                           0
+                                                       ],
+                                             "strength_clip":  0,
+                                             "strength_model":  0
+                                         }
+                          },
+                   "15":  {
+                              "_meta":  {
+                                            "title":  "Slider: Color temp (+ = colder, 라벤더·청색 쪽)"
+                                        },
+                              "class_type":  "LoraLoader",
+                              "inputs":  {
+                                             "clip":  [
+                                                          "14",
+                                                          1
+                                                      ],
+                                             "lora_name":  "il_color_temp_slider_d1.safetensors",
+                                             "model":  [
+                                                           "14",
+                                                           0
+                                                       ],
+                                             "strength_clip":  0.3,
+                                             "strength_model":  0.3
+                                         }
+                          },
+                   "16":  {
+                              "_meta":  {
+                                            "title":  "Pastel style LoRA"
+                                        },
+                              "class_type":  "LoraLoader",
+                              "inputs":  {
+                                             "clip":  [
+                                                          "15",
+                                                          1
+                                                      ],
+                                             "lora_name":  "Apocryphal-Pastel-IL_V18.safetensors",
+                                             "model":  [
+                                                           "15",
+                                                           0
+                                                       ],
+                                             "strength_clip":  0,
+                                             "strength_model":  0
+                                         }
+                          },
+                   "17":  {
+                              "_meta":  {
+                                            "title":  "Smooth lighting LoRA"
+                                        },
+                              "class_type":  "LoraLoader",
+                              "inputs":  {
+                                             "clip":  [
+                                                          "16",
+                                                          1
+                                                      ],
+                                             "lora_name":  "smooth-lighting-enhancer-noobai-illustrious.safetensors",
+                                             "model":  [
+                                                           "16",
+                                                           0
+                                                       ],
+                                             "strength_clip":  0,
+                                             "strength_model":  0
+                                         }
+                          },
+                   "2":  {
+                             "_meta":  {
+                                           "title":  "Positive"
+                                       },
+                             "class_type":  "CLIPTextEncode",
+                             "inputs":  {
+                                            "clip":  [
+                                                         "17",
+                                                         1
+                                                     ],
+                                            "text":  "1girl, solo, pastel colors, iridescent, white background, masterpiece, best quality"
+                                        }
+                         },
+                   "20":  {
+                              "_meta":  {
+                                            "title":  "STYLE REFERENCE IMAGE (ComfyUI input)"
+                                        },
+                              "class_type":  "LoadImage",
+                              "inputs":  {
+                                             "image":  "ref_pastel_holo.png"
+                                         }
+                          },
+                   "21":  {
+                              "_meta":  {
+                                            "title":  "IP-Adapter (NoobAI MARK1)"
+                                        },
+                              "class_type":  "IPAdapterModelLoader",
+                              "inputs":  {
+                                             "ipadapter_file":  "noobIPAMARK1_mark1.safetensors"
+                                         }
+                          },
+                   "22":  {
+                              "_meta":  {
+                                            "title":  "Image encoder (ViT-bigG)"
+                                        },
+                              "class_type":  "CLIPVisionLoader",
+                              "inputs":  {
+                                             "clip_name":  "CLIP-ViT-bigG-14-laion2B-39B-b160k.safetensors"
+                                         }
+                          },
+                   "23":  {
+                              "_meta":  {
+                                            "title":  "IP-Adapter style transfer (weight 0.6)"
+                                        },
+                              "class_type":  "IPAdapterAdvanced",
+                              "inputs":  {
+                                             "clip_vision":  [
+                                                                 "22",
+                                                                 0
+                                                             ],
+                                             "combine_embeds":  "concat",
+                                             "embeds_scaling":  "V only",
+                                             "end_at":  1,
+                                             "image":  [
+                                                           "20",
+                                                           0
+                                                       ],
+                                             "ipadapter":  [
+                                                               "21",
+                                                               0
+                                                           ],
+                                             "model":  [
+                                                           "17",
+                                                           0
+                                                       ],
+                                             "start_at":  0,
+                                             "weight":  0.6,
+                                             "weight_type":  "style transfer"
+                                         }
+                          },
+                   "3":  {
+                             "_meta":  {
+                                           "title":  "Negative"
+                                       },
+                             "class_type":  "CLIPTextEncode",
+                             "inputs":  {
+                                            "clip":  [
+                                                         "17",
+                                                         1
+                                                     ],
+                                            "text":  "bad quality, worst quality, worst detail, lowres, sketch, censor, bad anatomy, bad hands, extra fingers, missing fingers, text, watermark, signature, logo, blurry, jpeg artifacts, dark, dark background, muted colors, desaturated, greyscale, monochrome, high contrast, thick outline, realistic, 3d, child, loli, nsfw, nude"
+                                        }
+                         },
+                   "4":  {
+                             "_meta":  {
+                                           "title":  "Size"
+                                       },
+                             "class_type":  "EmptyLatentImage",
+                             "inputs":  {
+                                            "batch_size":  1,
+                                            "height":  1216,
+                                            "width":  832
+                                        }
+                         },
+                   "5":  {
+                             "_meta":  {
+                                           "title":  "Base pass"
+                                       },
+                             "class_type":  "KSampler",
+                             "inputs":  {
+                                            "cfg":  5,
+                                            "denoise":  1,
+                                            "latent_image":  [
+                                                                 "4",
+                                                                 0
+                                                             ],
+                                            "model":  [
+                                                          "23",
+                                                          0
+                                                      ],
+                                            "negative":  [
+                                                             "3",
+                                                             0
+                                                         ],
+                                            "positive":  [
+                                                             "2",
+                                                             0
+                                                         ],
+                                            "sampler_name":  "euler_ancestral",
+                                            "scheduler":  "normal",
+                                            "seed":  0,
+                                            "steps":  28
+                                        }
+                         },
+                   "6":  {
+                             "_meta":  {
+                                           "title":  "VAEDecode"
+                                       },
+                             "class_type":  "VAEDecode",
+                             "inputs":  {
+                                            "samples":  [
+                                                            "5",
+                                                            0
+                                                        ],
+                                            "vae":  [
+                                                        "1",
+                                                        2
+                                                    ]
+                                        }
+                         },
+                   "7":  {
+                             "_meta":  {
+                                           "title":  "Anime face detector"
+                                       },
+                             "class_type":  "UltralyticsDetectorProvider",
+                             "inputs":  {
+                                            "model_name":  "bbox/anime_face_detect_v1.4_s.pt"
+                                        }
+                         },
+                   "8":  {
+                             "_meta":  {
+                                           "title":  "Face fix (denoise 0.35)"
+                                       },
+                             "class_type":  "FaceDetailer",
+                             "inputs":  {
+                                            "bbox_crop_factor":  3,
+                                            "bbox_detector":  [
+                                                                  "7",
+                                                                  0
+                                                              ],
+                                            "bbox_dilation":  10,
+                                            "bbox_threshold":  0.4,
+                                            "cfg":  5,
+                                            "clip":  [
+                                                         "17",
+                                                         1
+                                                     ],
+                                            "cycle":  1,
+                                            "denoise":  0.35,
+                                            "drop_size":  10,
+                                            "feather":  5,
+                                            "force_inpaint":  true,
+                                            "guide_size":  512,
+                                            "guide_size_for":  true,
+                                            "image":  [
+                                                          "6",
+                                                          0
+                                                      ],
+                                            "inpaint_model":  false,
+                                            "max_size":  1024,
+                                            "model":  [
+                                                          "23",
+                                                          0
+                                                      ],
+                                            "negative":  [
+                                                             "3",
+                                                             0
+                                                         ],
+                                            "noise_mask":  true,
+                                            "noise_mask_feather":  20,
+                                            "positive":  [
+                                                             "2",
+                                                             0
+                                                         ],
+                                            "sam_bbox_expansion":  0,
+                                            "sam_detection_hint":  "center-1",
+                                            "sam_dilation":  0,
+                                            "sam_mask_hint_threshold":  0.7,
+                                            "sam_mask_hint_use_negative":  "False",
+                                            "sam_threshold":  0.93,
+                                            "sampler_name":  "euler_ancestral",
+                                            "scheduler":  "normal",
+                                            "seed":  0,
+                                            "steps":  20,
+                                            "tiled_decode":  false,
+                                            "tiled_encode":  false,
+                                            "vae":  [
+                                                        "1",
+                                                        2
+                                                    ],
+                                            "wildcard":  ""
+                                        }
+                         },
+                   "9":  {
+                             "_meta":  {
+                                           "title":  "UpscaleModelLoader"
+                                       },
+                             "class_type":  "UpscaleModelLoader",
+                             "inputs":  {
+                                            "model_name":  "4x-AnimeSharp.safetensors"
+                                        }
+                         }
+               },
+    "positive":  {
+                     "node":  "2",
+                     "field":  "text"
+                 },
+    "negative":  {
+                     "node":  "3",
+                     "field":  "text"
+                 },
+    "seeds":  [
+                  {
+                      "node":  "5",
+                      "field":  "seed"
+                  },
+                  {
+                      "node":  "8",
+                      "field":  "seed"
+                  },
+                  {
+                      "node":  "10",
+                      "field":  "seed"
+                  }
+              ],
+    "checkpoint":  {
+                       "node":  "1",
+                       "field":  "ckpt_name"
+                   },
+    "latent":  "4",
+    "sampler":  "5",
+    "updated":  1795072811
+}

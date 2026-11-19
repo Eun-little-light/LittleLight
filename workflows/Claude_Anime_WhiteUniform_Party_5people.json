@@ -1,0 +1,327 @@
+{
+    "name":  "Claude_Anime_WhiteUniform_Party_5people",
+    "prompt":  {
+                   "1":  {
+                             "class_type":  "CheckpointLoaderSimple",
+                             "inputs":  {
+                                            "ckpt_name":  "waiIllustriousSDXL_v170.safetensors"
+                                        }
+                         },
+                   "10":  {
+                              "class_type":  "UltimateSDUpscale",
+                              "inputs":  {
+                                             "batch_size":  1,
+                                             "cfg":  5,
+                                             "denoise":  0.25,
+                                             "force_uniform_tiles":  true,
+                                             "image":  [
+                                                           "8",
+                                                           0
+                                                       ],
+                                             "mask_blur":  8,
+                                             "mode_type":  "Linear",
+                                             "model":  [
+                                                           "23",
+                                                           0
+                                                       ],
+                                             "negative":  [
+                                                              "3",
+                                                              0
+                                                          ],
+                                             "positive":  [
+                                                              "2",
+                                                              0
+                                                          ],
+                                             "sampler_name":  "euler_ancestral",
+                                             "scheduler":  "normal",
+                                             "seam_fix_denoise":  1,
+                                             "seam_fix_mask_blur":  8,
+                                             "seam_fix_mode":  "None",
+                                             "seam_fix_padding":  16,
+                                             "seam_fix_width":  64,
+                                             "seed":  5151,
+                                             "steps":  16,
+                                             "tile_height":  1024,
+                                             "tile_padding":  32,
+                                             "tile_width":  1024,
+                                             "tiled_decode":  true,
+                                             "upscale_by":  1.5,
+                                             "upscale_model":  [
+                                                                   "9",
+                                                                   0
+                                                               ],
+                                             "vae":  [
+                                                         "1",
+                                                         2
+                                                     ]
+                                         }
+                          },
+                   "11":  {
+                              "class_type":  "SaveImage",
+                              "inputs":  {
+                                             "filename_prefix":  "Claude/wu_party",
+                                             "images":  [
+                                                            "10",
+                                                            0
+                                                        ]
+                                         }
+                          },
+                   "14":  {
+                              "class_type":  "LoraLoader",
+                              "inputs":  {
+                                             "clip":  [
+                                                          "1",
+                                                          1
+                                                      ],
+                                             "lora_name":  "il_saturation_slider.safetensors",
+                                             "model":  [
+                                                           "1",
+                                                           0
+                                                       ],
+                                             "strength_clip":  0.5,
+                                             "strength_model":  0.5
+                                         }
+                          },
+                   "15":  {
+                              "class_type":  "LoraLoader",
+                              "inputs":  {
+                                             "clip":  [
+                                                          "14",
+                                                          1
+                                                      ],
+                                             "lora_name":  "il_color_temp_slider_d1.safetensors",
+                                             "model":  [
+                                                           "14",
+                                                           0
+                                                       ],
+                                             "strength_clip":  0.3,
+                                             "strength_model":  0.3
+                                         }
+                          },
+                   "2":  {
+                             "_meta":  {
+                                           "title":  "Positive (one BREAK block per character)"
+                                       },
+                             "class_type":  "CLIPTextEncode",
+                             "inputs":  {
+                                            "clip":  [
+                                                         "15",
+                                                         1
+                                                     ],
+                                            "text":  "5people, group, 2girls, 3boys, adult, military officers, BREAK 1girl, adult woman, white hair, long straight hair, sidelocks, blunt bangs, strands of hair between eyes, pastel gradient eyes, light purple eyes, half-closed eyes, sharp eyeliner, long lashes, expressionless, cold expression, small mouth, fair skin, gold cross earring, dangling earring, (white military uniform:1.3), white jacket, high collar, decorative white embroidery, fitted uniform, center, BREAK 1girl, adult woman, short silver bob hair, monocle, white military uniform, BREAK 1boy, adult man, short black hair, stern, white military uniform, gold epaulettes, saber at hip, BREAK 1boy, adult man, blonde hair, ponytail, smirk, white military uniform, cape over shoulder, BREAK 1boy, large man, adult, buzz cut, scar on face, white military uniform, arms crossed, hands on hips, BREAK group photo, standing close together, overlapping figures, depth, cowboy shot, the white-haired woman in front center, looking at viewer, muted colors, desaturated, monochrome palette, greyscale with subtle pastel accents, fine lineart, thin lines, heavy line weight variation, detailed hatching, soft shading, subtle gradients, low contrast, ambient occlusion, pale cream background, simple background, anime style, illustration, absurdres, highres, best quality, masterpiece, extremely detailed, intricate details, sharp focus, professional illustration, detailed eyes, detailed clothing texture"
+                                        }
+                         },
+                   "20":  {
+                              "class_type":  "LoadImage",
+                              "inputs":  {
+                                             "image":  "ref_witch.png"
+                                         }
+                          },
+                   "21":  {
+                              "class_type":  "IPAdapterModelLoader",
+                              "inputs":  {
+                                             "ipadapter_file":  "noobIPAMARK1_mark1.safetensors"
+                                         }
+                          },
+                   "22":  {
+                              "class_type":  "CLIPVisionLoader",
+                              "inputs":  {
+                                             "clip_name":  "CLIP-ViT-bigG-14-laion2B-39B-b160k.safetensors"
+                                         }
+                          },
+                   "23":  {
+                              "_meta":  {
+                                            "title":  "Style ref (0 = off; raising it adds a black-haired girl)"
+                                        },
+                              "class_type":  "IPAdapterAdvanced",
+                              "inputs":  {
+                                             "clip_vision":  [
+                                                                 "22",
+                                                                 0
+                                                             ],
+                                             "combine_embeds":  "concat",
+                                             "embeds_scaling":  "V only",
+                                             "end_at":  1,
+                                             "image":  [
+                                                           "20",
+                                                           0
+                                                       ],
+                                             "ipadapter":  [
+                                                               "21",
+                                                               0
+                                                           ],
+                                             "model":  [
+                                                           "15",
+                                                           0
+                                                       ],
+                                             "start_at":  0,
+                                             "weight":  0,
+                                             "weight_type":  "style transfer"
+                                         }
+                          },
+                   "3":  {
+                             "_meta":  {
+                                           "title":  "Negative"
+                                       },
+                             "class_type":  "CLIPTextEncode",
+                             "inputs":  {
+                                            "clip":  [
+                                                         "15",
+                                                         1
+                                                     ],
+                                            "text":  "hat, cap, beret, headwear, helmet, lowres, worst quality, low quality, bad quality, worst detail, sketch, bad anatomy, bad proportions, deformed, disfigured, mutated, bad hands, extra fingers, fewer fingers, missing fingers, fused fingers, extra arms, extra hands, extra limbs, missing limbs, extra heads, fused bodies, merged characters, extra person, background characters, distorted face, asymmetric eyes, cross-eyed, malformed uniform, mismatched buttons, messy lines, rough lines, oversaturated, vivid colors, neon colors, rainbow palette, flat color, cel shading, thick bold lines, photorealistic, 3d, render, oil painting, watercolor, blurry, jpeg artifacts, busy background, scenery, text, watermark, signature, speech bubble, child, loli, shota, nsfw, nude, cleavage, (black clothes:1.3), black uniform, black jacket, dark clothes, character sheet, reference sheet, lineup, multiple views, turnaround, japanese text, kanji, labels"
+                                        }
+                         },
+                   "4":  {
+                             "class_type":  "EmptyLatentImage",
+                             "inputs":  {
+                                            "batch_size":  1,
+                                            "height":  768,
+                                            "width":  1344
+                                        }
+                         },
+                   "5":  {
+                             "class_type":  "KSampler",
+                             "inputs":  {
+                                            "cfg":  5.5,
+                                            "denoise":  1,
+                                            "latent_image":  [
+                                                                 "4",
+                                                                 0
+                                                             ],
+                                            "model":  [
+                                                          "23",
+                                                          0
+                                                      ],
+                                            "negative":  [
+                                                             "3",
+                                                             0
+                                                         ],
+                                            "positive":  [
+                                                             "2",
+                                                             0
+                                                         ],
+                                            "sampler_name":  "euler_ancestral",
+                                            "scheduler":  "normal",
+                                            "seed":  5151,
+                                            "steps":  28
+                                        }
+                         },
+                   "6":  {
+                             "class_type":  "VAEDecode",
+                             "inputs":  {
+                                            "samples":  [
+                                                            "5",
+                                                            0
+                                                        ],
+                                            "vae":  [
+                                                        "1",
+                                                        2
+                                                    ]
+                                        }
+                         },
+                   "7":  {
+                             "class_type":  "UltralyticsDetectorProvider",
+                             "inputs":  {
+                                            "model_name":  "bbox/anime_face_detect_v1.4_s.pt"
+                                        }
+                         },
+                   "8":  {
+                             "class_type":  "FaceDetailer",
+                             "inputs":  {
+                                            "bbox_crop_factor":  3,
+                                            "bbox_detector":  [
+                                                                  "7",
+                                                                  0
+                                                              ],
+                                            "bbox_dilation":  10,
+                                            "bbox_threshold":  0.4,
+                                            "cfg":  5,
+                                            "clip":  [
+                                                         "15",
+                                                         1
+                                                     ],
+                                            "cycle":  1,
+                                            "denoise":  0.35,
+                                            "drop_size":  10,
+                                            "feather":  5,
+                                            "force_inpaint":  true,
+                                            "guide_size":  512,
+                                            "guide_size_for":  true,
+                                            "image":  [
+                                                          "6",
+                                                          0
+                                                      ],
+                                            "inpaint_model":  false,
+                                            "max_size":  1024,
+                                            "model":  [
+                                                          "23",
+                                                          0
+                                                      ],
+                                            "negative":  [
+                                                             "3",
+                                                             0
+                                                         ],
+                                            "noise_mask":  true,
+                                            "noise_mask_feather":  20,
+                                            "positive":  [
+                                                             "2",
+                                                             0
+                                                         ],
+                                            "sam_bbox_expansion":  0,
+                                            "sam_detection_hint":  "center-1",
+                                            "sam_dilation":  0,
+                                            "sam_mask_hint_threshold":  0.7,
+                                            "sam_mask_hint_use_negative":  "False",
+                                            "sam_threshold":  0.93,
+                                            "sampler_name":  "euler_ancestral",
+                                            "scheduler":  "normal",
+                                            "seed":  5151,
+                                            "steps":  20,
+                                            "tiled_decode":  false,
+                                            "tiled_encode":  false,
+                                            "vae":  [
+                                                        "1",
+                                                        2
+                                                    ],
+                                            "wildcard":  ""
+                                        }
+                         },
+                   "9":  {
+                             "class_type":  "UpscaleModelLoader",
+                             "inputs":  {
+                                            "model_name":  "4x-AnimeSharp.safetensors"
+                                        }
+                         }
+               },
+    "positive":  {
+                     "node":  "2",
+                     "field":  "text"
+                 },
+    "negative":  {
+                     "node":  "3",
+                     "field":  "text"
+                 },
+    "seeds":  [
+                  {
+                      "node":  "5",
+                      "field":  "seed"
+                  },
+                  {
+                      "node":  "8",
+                      "field":  "seed"
+                  },
+                  {
+                      "node":  "10",
+                      "field":  "seed"
+                  }
+              ],
+    "checkpoint":  {
+                       "node":  "1",
+                       "field":  "ckpt_name"
+                   },
+    "latent":  "4",
+    "sampler":  "5",
+    "source":  "",
+    "updated":  1795000507
+}

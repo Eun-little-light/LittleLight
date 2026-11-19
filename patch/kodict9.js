@@ -1,0 +1,25 @@
+// 태그 한국어 사전 9 — 품질·화풍·부정 프롬프트에 자주 쓰는 말 (Danbooru 일반 태그가 아닌 것 포함)
+Object.assign(window.BC_KO = window.BC_KO || {}, {
+"headwear":"모자류","masterpiece":"걸작","best quality":"최고 품질","amazing quality":"놀라운 품질","high quality":"고품질","great quality":"좋은 품질","normal quality":"보통 품질","good quality":"양호한 품질","very aesthetic":"매우 미적","aesthetic":"미적","absurdres":"초고해상도","highres":"고해상도","lowres":"저해상도","worst quality":"최악 품질","low quality":"낮은 품질","bad quality":"나쁜 품질","worst detail":"최악 디테일","bad hands":"망가진 손","extra fingers":"손가락 추가","missing fingers":"손가락 누락","fewer fingers":"손가락 부족","fewer digits":"손가락 부족","extra digits":"손가락 추가","fused fingers":"붙은 손가락","extra limbs":"팔다리 추가","missing limbs":"팔다리 누락","extra arms":"팔 추가","extra hands":"손 추가","extra heads":"머리 추가","fused bodies":"붙은 몸","bad proportions":"비율 오류","deformed":"변형","disfigured":"일그러짐","mutated":"변이","mutation":"변이","distorted face":"일그러진 얼굴","asymmetric eyes":"비대칭 눈","jpeg artifacts":"압축 노이즈","text":"글자","error":"오류","censor":"검열","username":"아이디","logo":"로고","extra person":"추가 인물","background characters":"배경 인물","merged characters":"합쳐진 인물","malformed uniform":"망가진 제복","mismatched buttons":"짝 안 맞는 단추","messy lines":"지저분한 선","rough lines":"거친 선","thick bold lines":"굵은 선","thick outline":"굵은 외곽선","fine lineart":"섬세한 선화","thin lines":"얇은 선","heavy line weight variation":"선 굵기 변화","detailed hatching":"정교한 해칭","subtle gradients":"은은한 그라데이션","low contrast":"저대비","high contrast":"고대비","ambient occlusion":"앰비언트 오클루전","oversaturated":"과포화","desaturated":"채도 낮춤","vivid colors":"선명한 색","neon colors":"네온 색","rainbow palette":"무지개 팔레트","grey palette":"회색 팔레트","monochrome palette":"단색 팔레트","muted colors":"차분한 색","pastel colors":"파스텔 색","pale cream background":"연한 크림 배경","soft shading":"부드러운 음영","ambient lighting":"주변광","detailed background":"디테일한 배경","busy background":"복잡한 배경","cel shading":"셀 셰이딩","photorealistic":"실사","render":"렌더","oil painting":"유화","watercolor":"수채화","anime style":"애니 스타일","illustration":"일러스트","professional illustration":"전문 일러스트","extremely detailed":"매우 섬세함","intricate details":"정교한 디테일","detailed eyes":"섬세한 눈","detailed clothing texture":"섬세한 옷 질감","cinematic":"영화 같은","fisheye":"어안 렌즈","tavern":"선술집","bar counter":"바 카운터","bottles":"병들","shelves":"선반들","wooden floor":"나무 바닥","adult":"성인","woman":"여성","man":"남성","adult woman":"성인 여성","adult man":"성인 남성","duo":"2인","2people":"2명","3people":"3명","hetero pair":"남녀 커플","group":"단체","adventurer party":"모험가 파티","nsfw":"성인용","sfw":"일반용","explicit":"노골적","questionable":"애매함","sensitive":"민감","general":"일반","newest":"최신","recent":"최근","red inner lining":"빨간 안감","white military uniform":"흰 군복","white jacket":"흰 재킷","high collar":"높은 칼라","decorative white embroidery":"흰 장식 자수","fitted uniform":"몸에 맞는 제복","gold epaulettes":"금색 견장","gold aiguillette":"금색 견장줄","hand on sword hilt":"검 손잡이에 손","saber at hip":"허리에 찬 군도","stern expression":"엄한 표정","cold expression":"차가운 표정","small mouth":"작은 입","sharp eyeliner":"날카로운 아이라인","long lashes":"긴 속눈썹","fair skin":"하얀 피부","gold cross earring":"금 십자 귀걸이","dangling earring":"늘어진 귀걸이","pastel gradient eyes":"파스텔 그라데이션 눈","strands of hair between eyes":"눈 사이 잔머리","long straight hair":"긴 생머리","standing side by side":"나란히 서기","shoulder to shoulder":"어깨를 맞댐","greyscale with subtle pastel accents":"회색조에 파스텔 포인트","dark clothes":"어두운 옷","black uniform":"검은 제복","extra girl":"추가 여자","trio":"3인","speech bubble":"말풍선","scenery":"풍경","black witch hat":"검은 마녀 모자","reaching towards viewer":"화면으로 손 뻗기"
+});
+
+// 사전에 없는 조합어 자동 번역: "long black hair" → "긴" + "검은 머리"
+(() => {
+  const KO = window.BC_KO;
+  const ADJ = {
+    "black":"검은","white":"흰","red":"빨간","blue":"파란","green":"초록","yellow":"노란","pink":"분홍","purple":"보라","grey":"회색","gray":"회색","brown":"갈색","orange":"주황","aqua":"청록","silver":"은색","gold":"금색","golden":"금빛","light blue":"하늘색","dark blue":"남색","light brown":"밝은 갈색","dark":"어두운","light":"밝은","pale":"옅은",
+    "long":"긴","short":"짧은","small":"작은","large":"큰","big":"큰","huge":"거대한","tiny":"아주 작은","sleeveless":"민소매","plaid":"체크","striped":"줄무늬","lace":"레이스","frilled":"프릴","open":"열린","torn":"찢어진","wet":"젖은","see-through":"비치는","oversized":"큰","tight":"꽉 끼는","fluffy":"폭신한","shiny":"광택","sheer":"비치는","messy":"헝클어진","straight":"곧은","wavy":"웨이브","curly":"곱슬","thick":"두꺼운","thin":"얇은","soft":"부드러운","heavy":"짙은","slight":"살짝","detailed":"섬세한","simple":"단순한","ornate":"화려한","leather":"가죽","denim":"데님","wooden":"나무","metal":"금속","glowing":"빛나는","floating":"떠 있는","cute":"귀여운","elegant":"우아한","casual":"캐주얼","formal":"정장","military":"군용","gothic":"고딕","victorian":"빅토리안","traditional":"전통","modern":"현대식","old":"낡은","new":"새"
+  };
+  const keys = Object.keys(ADJ).sort((a, b) => b.length - a.length);
+  const base = (t) => KO[t];
+  function compose(t, depth = 0) {
+    if (KO[t]) return KO[t];
+    if (depth > 3) return "";
+    for (const a of keys) {
+      if (t.startsWith(a + " ")) { const r = compose(t.slice(a.length + 1), depth + 1); if (r) return ADJ[a] + " " + r; }
+    }
+    return "";
+  }
+  window.BC_KO_COMPOSE = compose;
+  window.BC_KO_BASE = base;
+})();
