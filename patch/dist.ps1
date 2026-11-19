@@ -19,7 +19,8 @@ foreach ($f in [IO.Directory]::GetFiles($D, "*.vbs")) { [IO.File]::Delete($f) }
 # 업데이트: update.ps1 + 저장소 이름(update.txt) — 실행기가 켤 때 GitHub 최신 릴리스를 확인
 & $cp ([IO.Path]::Combine($App, "patch", "update.ps1")) ([IO.Path]::Combine($D, "update.ps1"))
 [IO.File]::WriteAllText([IO.Path]::Combine($D, "update.txt"), "Eun-little-light/$Name
-", $u8)
+version=$([regex]::Match([IO.Path]::GetFileName($Exe), 'v([\d.]+)(?=\.exe)').Groups[1].Value)
+", $u8)   # version: 엔진이 창 exe 안에 들어간 배포판의 업데이트 비교용
 $ref = [IO.Path]::Combine($D, "reference"); [IO.Directory]::CreateDirectory($ref) | Out-Null
 foreach ($f in [IO.Directory]::GetFiles($ref)) { [IO.File]::Delete($f) }
 foreach ($n in "ref_pastel_holo.png", "ref_bluenight.png") { & $cp ([IO.Path]::Combine($App, "reference", $n)) ([IO.Path]::Combine($ref, $n)) }

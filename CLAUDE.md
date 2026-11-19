@@ -16,7 +16,8 @@ BooruComfy에서 갈라져 나온 **일반 일러스트(SFW) 생성 도구**입�
   - `patch/base_v1.6.1.exe`: 원본 (건드리지 않음)
   - `patch/build2.ps1`: exe 끝에 새 PE 섹션(.bcui)을 붙여 내장 app.js를 바꿔 끼움
   - `patch/make.ps1 -Ver X.Y.Z`: 버전 표시(version.js) 생성 → 빌드 → 데이터 폴더 이름 `BooruComfy_data`→`LittleLightData` 바이트 교체 → 캐릭터 폴더 연결(정션)
-- 모듈 순서는 make.ps1 안의 목록 그대로: version, (charnames_local), charnames, tidy, picker, presetgrid, hat, bust, faceless, queue, charfolder, pastel, artists_pixiv, artists_thumbs, artists, bluenight, embed, comfysetup, taggroups, customtags, characters, series, regen, editor, kodict1~10, kodict_ll, ko, weight, ios
+- 모듈 순서는 make.ps1 안의 목록 그대로: version, (charnames_local), charnames, tidy, picker, presetgrid, hat, bust, faceless, queue, charfolder, pastel, artists_pixiv, artists_thumbs, artists, bluenight, embed, comfysetup, taggroups, customtags, characters, series, regen, editor, kodict1~10, kodict_ll, ko, weight, ios, fit
+  - `fit.js`: 작은 창 대응 CSS (버튼 글자 세로 꺾임·가로 넘침 방지, 태그 선택기 좁은 창 높이) — ios 테마 뒤 맨 마지막. 화면을 고치면 브라우저 창 760·560·1000x520 폭에서 모든 탭을 확인
   - `picker.js`: 태그 선택기 (장면 1인/2인/5인, 감정, 복장, 조명, 화풍, 이펙트, 배경 등 — 일반 일러스트용 데이터)
   - `series.js`: "연작" 탭 (화풍 칸 #serStyle = STYLE_G 그룹을 썸네일 타일로, 선택은 fxSel에 같이 저장) (테마별 여러 장 자동 생성, 여러 장면 한 번에, 진행도, 이어서 생성)
   - `characters.js`: 마녀 캐릭터·흑발 셔츠 캐릭터·은발 베레모 캐릭터·흰 긴 머리 메이드·흑발 오드아이 메이드·흑발 청안 메이드 — 솔로/솔로 제외/여럿 한 번에 생성용
@@ -35,7 +36,8 @@ BooruComfy에서 갈라져 나온 **일반 일러스트(SFW) 생성 도구**입�
   - 화풍 모듈(pastel, artists, artists_pixiv, artists_thumbs, bluenight), regen.js, bust.js, queue.js, editor.js, comfysetup.js, charnames.js, update.ps1, dist.ps1, patch\shell\은 Ghost(옛 BooruComfy, `Desktop\img project\BooruComfy-v1.0.0-win64\patch`)에도 같은 파일이 있음 — 고치면 양쪽에 복사
   - `charnames.js`: 캐릭터 정의(BUILTIN: id·기본 이름·폴더·설명·인식 태그·keep) + 이름 지정 + 내 캐릭터(프리셋 '@캐릭터 이름'·'@내 캐릭터'), 설정 탭과 캐릭터 선택 옆 '✎ 캐릭터' 창. `window.LL_DIST`(make -Dist)면 기본 이름 없음
   - `characters.js`·`charfolder.js`는 charnames를 씀 (Ghost와 같은 파일, `window.LL`로 경로·문구만 다름)
-  - 배포: `make.ps1 -Ver X -Dist` → `patch\dist.ps1`가 바탕화면 [LittleLight][배포용.Rev.1]에 최신만 남김 (전용 창 포함, .vbs 없음)
+  - 배포: `make.ps1 -Ver X -Dist` → `patch\dist.ps1`가 바탕화면 [LittleLight][배포용.Rev.1]에 최신만 남김 (.vbs 없음). 엔진 exe는 `Little Light.exe` 안에 리소스로 들어가고(`build_shell.ps1 -Engine`) 배포 폴더에서는 지움 → 창 exe가 숨김 `.engine\`에 풀고(stamp=빌드 MVID) `.engine\LittleLightData` → `LittleLightData` 정션. update.txt 둘째 줄 `version=`로 업데이트 비교
+  - GitHub: 버전마다 보통 커밋 + 새 릴리스(`*_dist.zip`) — 기록 지우기(force push) 안 함
   - `charfolder.js`: 캐릭터별 폴더 저장 + 캐릭터용 사본 워크플로에서 마녀 화풍 참조(ref_witch)를 마녀 캐릭터·흑발 오드아이 메이드·흑발 청안 메이드(KEEP_REF) 외에는 0.5(OTHER_IPA)로 낮춤 (CHARS 순서 중요: 흑발 오드아이 메이드가 흑발 청안 메이드보다 앞) · (`LittleLightData\images\<이름>` = ComfyUI output\LittleLight\<이름> 로 이어진 정션)
 - 실행: `Little Light.exe`(전용 창) 또는 `Little Light 실행 (ComfyUI 같이).vbs` → 최신 `LittleLight_v*.exe`를 **포트 7866**으로 (Ghost(옛 BooruComfy)는 7865)
 

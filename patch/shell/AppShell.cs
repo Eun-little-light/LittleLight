@@ -175,14 +175,14 @@ class ShellForm : Form
     async Task<bool> StartServer()
     {
         if (await Ok(Url + "api/config")) return true;          // 이미 켜져 있으면 그대로 씀 (닫을 때 끄지 않음)
-        var exe = Directory.GetFiles(Program.Home, "*.exe")
+        var exe = Config.Embedded ? PrepareEngine() : Directory.GetFiles(Program.Home, "*.exe")
             .Select(f => new { f, m = Regex.Match(Path.GetFileName(f), Config.ExePattern, RegexOptions.IgnoreCase) })
             .Where(x => x.m.Success)
             .OrderBy(x => new Version(x.m.Groups[1].Value.Split('.').Length == 1 ? x.m.Groups[1].Value + ".0" : x.m.Groups[1].Value))
             .Select(x => x.f).LastOrDefault();
         if (exe == null)
         {
-            MessageBox.Show(this, "이 폴더에서 " + Config.Name + " 실행 파일(" + Config.ExeHint + ")을 찾지 못했습니다.", Config.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(this, (Config.Embedded ? "앱을 준비하지 못했습니다. 폴더에 쓰기 권한이 있는지 확인하세요 (기록: %LOCALAPPDATA%\\" + Config.Id + "\\shell.log)." : "이 폴더에서 " + Config.Name + " 실행 파일(" + Config.ExeHint + ")을 찾지 못했습니다."), Config.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
             Close(); return false;
         }
         Say(Path.GetFileNameWithoutExtension(exe) + " 켜는 중…"); Log("서버 " + exe);
@@ -201,6 +201,44 @@ class ShellForm : Form
         Close(); return false;
     }
 
+    // 배포용: 엔진(앱 서버 exe)이 이 exe 안에 들어 있음 → 같은 폴더의 숨김 폴더 .engine 에 풀어서 실행
+    //  엔진은 자기 exe 옆을 데이터 폴더로 쓰므로 .engine\<데이터 폴더>를 이 폴더의 <데이터 폴더>로 잇는 연결(정션)을 만듦
+    //  → 프리셋 · 기록 · 설정은 지금처럼 이 폴더의 데이터 폴더에 쌓임
+    string PrepareEngine()
+    {
+        try
+        {
+            var dir = Path.Combine(Program.Home, ".engine");
+            var di = Directory.CreateDirectory(dir);
+            di.Attributes |= FileAttributes.Hidden;
+            var exe = Path.Combine(dir, Config.EngineFile);
+            using (var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("engine.exe"))
+            {
+                if (s == null) throw new Exception("exe 안에 엔진이 없습니다");
+                // 빌드마다 바뀌는 번호(MVID)를 stamp에 적어 둠 → 크기가 같은 새 엔진도 확실히 바꿔 넣음
+                var stampFile = Path.Combine(dir, "stamp");
+                var stamp = Assembly.GetExecutingAssembly().ManifestModule.ModuleVersionId.ToString();
+                var oldStamp = File.Exists(stampFile) ? File.ReadAllText(stampFile).Trim() : "";
+                if (!File.Exists(exe) || new FileInfo(exe).Length != s.Length || oldStamp != stamp)
+                {
+                    Say("처음 실행 준비 중…");
+                    using (var f = File.Create(exe)) s.CopyTo(f);
+                    File.WriteAllText(stampFile, stamp);
+                }
+            }
+            foreach (var old in Directory.GetFiles(dir, "*.exe")) if (!string.Equals(old, exe, StringComparison.OrdinalIgnoreCase)) { try { File.Delete(old); } catch { } }   // 예전 엔진
+            foreach (var old in Directory.GetFiles(Program.Home, "*.exe"))   // 예전 방식(엔진이 폴더에 따로 있던 것) 정리
+                if (Regex.IsMatch(Path.GetFileName(old), Config.ExePattern, RegexOptions.IgnoreCase)) { try { File.Delete(old); } catch { } }
+            var data = Path.Combine(Program.Home, Config.DataName);
+            Directory.CreateDirectory(data);
+            var link = Path.Combine(dir, Config.DataName);
+            if (!Directory.Exists(link))
+                RunWait("cmd.exe", "/c mklink /J \"" + link + "\" \"" + data + "\"", 10000);
+            if (!Directory.Exists(link)) Log("데이터 폴더 연결 실패: " + link);
+            return exe;
+        }
+        catch (Exception ex) { Log("엔진 준비 실패: " + ex); return null; }
+    }
     static async Task<bool> Ok(string url)
     {
         try

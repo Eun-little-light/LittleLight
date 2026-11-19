@@ -3,7 +3,7 @@
 #  - 화면: 로고 "Little Light" + 버전, 창 제목
 #  - 데이터 폴더: exe 옆 LittleLightData (BooruComfy_data와 따로 — 프리셋·기록·내 태그가 섞이지 않음)
 #  - 캐릭터별 폴더: LittleLightData\images\<폴더> = ComfyUI output\LittleLight\<폴더> 로 이어진 연결(정션) — 폴더 이름은 patch\charnames_local.js(내 빌드 전용)
-# 배포용:  & .\patch\make.ps1 -Ver 1.0.0 -Dist  → 캐릭터 기본 이름 없이 빌드해 바탕화면\[LittleLight][배포용]에 최신 버전만 남김 (patch\dist.ps1)
+# 배포용:  & .\patch\make.ps1 -Ver 1.0.0 -Dist  → 캐릭터 기본 이름 없이 빌드해 바탕화면\[LittleLight][배포용.Rev.1]에 최신 버전만 남김 — 엔진은 Little Light.exe 안에 들어가 폴더엔 창 exe만 (patch\dist.ps1)
 param([Parameter(Mandatory = $true)][string]$Ver, [switch]$Dist)
 $ErrorActionPreference = 'Stop'
 $P = $PSScriptRoot
@@ -26,7 +26,7 @@ $js = @"
 "@
 [IO.File]::WriteAllText("$P\version.js", $js, $u)
 $add = @("version") + $(if (-not $Dist -and (Test-Path "$P\charnames_local.js")) { @("charnames_local") } else { @() }) + @("charnames", "tidy", "picker", "presetgrid", "hat", "bust", "faceless", "queue", "charfolder", "pastel", "artists_pixiv", "artists_thumbs", "artists", "bluenight", "embed", "comfysetup", "updater", "taggroups", "customtags", "characters", "series", "regen", "editor",
-  "kodict1", "kodict2", "kodict3", "kodict4", "kodict5", "kodict6", "kodict7", "kodict8", "kodict9", "kodict10", "kodict_ll", "ko", "weight", "ios") | % { "$P\$_.js" }
+  "kodict1", "kodict2", "kodict3", "kodict4", "kodict5", "kodict6", "kodict7", "kodict8", "kodict9", "kodict10", "kodict_ll", "ko", "weight", "ios", "fit") | % { "$P\$_.js" }
 $DistDir = [IO.Path]::Combine([Environment]::GetFolderPath("Desktop"), "[LittleLight][배포용.Rev.1]")
 if ($Dist) { [IO.Directory]::CreateDirectory($DistDir) | Out-Null; foreach ($f in [IO.Directory]::GetFiles($DistDir, "*.exe")) { [IO.File]::Delete($f) } }
 $dst = if ($Dist) { [IO.Path]::Combine($DistDir, "LittleLight_v$Ver.exe") } else { "$App\LittleLight_v$Ver.exe" }
@@ -44,9 +44,9 @@ $new = [Text.Encoding]::ASCII.GetBytes("LittleLightData")
 
 # 전용 창 프로그램 (Little Light.exe) — 앱 exe 옆에 둠 (patch\shell\build_shell.ps1, WebView2)
 $shellOut = [IO.Path]::Combine((Split-Path $dst -Parent), "Little Light.exe")
-try { & "$P\shell\build_shell.ps1" -Name "Little Light" -Id LittleLight -Pattern '^LittleLight_v([\d.]+)\.exe$' -Hint "LittleLight_v*.exe" -Port 7866 -Icon sun -Out $shellOut -Ver $Ver }
+try { & "$P\shell\build_shell.ps1" -Name "Little Light" -Id LittleLight -Pattern '^LittleLight_v([\d.]+)\.exe$' -Hint "LittleLight_v*.exe" -Port 7866 -Icon sun -Out $shellOut -Ver $Ver -DataName LittleLightData -Engine $(if ($Dist) { $dst } else { "" }) }   # 배포용은 엔진을 창 exe 안에
 catch { Write-Warning "전용 창을 만들지 못했습니다 (실행 중이면 닫고 다시): $_" }
-if ($Dist) { & "$P\dist.ps1" -App $App -Name LittleLight -Exe $dst -Vbs "Little Light 실행 (ComfyUI 같이).vbs" -Data LittleLightData; return }
+if ($Dist) { & "$P\dist.ps1" -App $App -Name LittleLight -Exe $dst -Vbs "Little Light 실행 (ComfyUI 같이).vbs" -Data LittleLightData; [IO.File]::Delete($dst); "엔진은 Little Light.exe 안에 들어감 → 배포 폴더에서 $([IO.Path]::GetFileName($dst)) 지움"; return }
 # 캐릭터별 폴더 연결: LittleLightData\images\<이름> → ComfyUI output\LittleLight\<이름>
 $out = "$env:LOCALAPPDATA\Comfy-Desktop\ComfyUI-Shared\output"
 if (Test-Path $out) {

@@ -5,7 +5,9 @@ param(
   [Parameter(Mandatory = $true)][string]$Name, [Parameter(Mandatory = $true)][string]$Id,
   [Parameter(Mandatory = $true)][string]$Pattern, [Parameter(Mandatory = $true)][string]$Hint,
   [Parameter(Mandatory = $true)][int]$Port, [ValidateSet("sun", "ghost")][string]$Icon = "sun",
-  [Parameter(Mandatory = $true)][string]$Out, [string]$Ver = "1.0.0"
+  [Parameter(Mandatory = $true)][string]$Out, [string]$Ver = "1.0.0",
+  [string]$Engine = "",          # 배포용: 이 엔진 exe를 안에 넣음 (실행할 때 .engine 숨김 폴더에 풀림)
+  [string]$DataName = "LittleLightData"
 )
 $ErrorActionPreference = 'Stop'
 $S = $PSScriptRoot; $lib = Join-Path $S "lib"
@@ -26,6 +28,9 @@ static class Config {
   public static string ExePattern = "$(& $esc $Pattern)";
   public static string ExeHint = "$(& $esc $Hint)";
   public static int Port = $Port;
+  public static bool Embedded = $(if ($Engine) { "true" } else { "false" });
+  public static string EngineFile = "$(if ($Engine) { & $esc ([IO.Path]::GetFileName($Engine)) })";
+  public static string DataName = "$(& $esc $DataName)";
 }
 "@
   [IO.File]::WriteAllText("$tmp\Config.cs", $cfg, (New-Object Text.UTF8Encoding $true))
@@ -62,6 +67,7 @@ static class Config {
   # 컴파일
   $refs = @("System.dll", "System.Core.dll", "System.Drawing.dll", "System.Windows.Forms.dll", "$lib\Microsoft.Web.WebView2.Core.dll", "$lib\Microsoft.Web.WebView2.WinForms.dll") | % { "/reference:$_" }
   $res = @("Microsoft.Web.WebView2.Core.dll", "Microsoft.Web.WebView2.WinForms.dll", "WebView2Loader.dll") | % { "/resource:$lib\$_,$_" }
+  if ($Engine) { $res += "/resource:$Engine,engine.exe" }
   $outTmp = "$tmp\out.exe"
   $log = & $csc /nologo /target:winexe /platform:x64 /optimize+ /codepage:65001 "/win32icon:$tmp\app.ico" "/out:$outTmp" @refs @res "$S\AppShell.cs" "$tmp\Config.cs" 2>&1
   if ($LASTEXITCODE -ne 0) { $log | Out-String | Write-Host; throw "컴파일 실패" }

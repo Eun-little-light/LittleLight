@@ -9,22 +9,26 @@ $ErrorActionPreference = 'Stop'
 $here = $PSScriptRoot
 $cfg = Join-Path $here 'update.txt'
 if (-not (Test-Path -LiteralPath $cfg)) { exit 0 }
-$repo = ([IO.File]::ReadAllLines($cfg) | ? { $_.Trim() } | select -First 1).Trim()
+$lines = @([IO.File]::ReadAllLines($cfg) | ? { $_.Trim() })
+$repo = $lines[0].Trim()
+$verLine = $lines | ? { $_ -match '^version=([\d.]+)' } | select -First 1   # 엔진이 창 exe 안에 들어간 배포판은 여기 적힌 버전으로 비교
 Add-Type -AssemblyName System.Windows.Forms
 $ask = { param($msg, $buttons = 'YesNo', $icon = 'Question') if ($Yes) { return 'Yes' }; [Windows.Forms.MessageBox]::Show($msg, '업데이트', $buttons, $icon) }
 try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12 } catch {}
 try { $rel = Invoke-RestMethod "https://api.github.com/repos/$repo/releases/latest" -Headers @{ 'User-Agent' = 'app-updater' } -TimeoutSec 8 } catch { exit 0 }
 $ver = { param($s) try { [version]($s -replace '^v', '') } catch { [version]'0.0' } }
 $exes = @(Get-ChildItem -LiteralPath $here -Filter '*_v*.exe' | ? { $_.Name -match '_v([\d.]+)\.exe$' })
-if (-not $exes.Count) { exit 0 }
-$cur = $exes | sort { & $ver ([regex]::Match($_.Name, '_v([\d.]+)\.exe$').Groups[1].Value) } | select -Last 1
-$curV = & $ver ([regex]::Match($cur.Name, '_v([\d.]+)\.exe$').Groups[1].Value)
+if ($exes.Count) {
+  $cur = $exes | sort { & $ver ([regex]::Match($_.Name, '_v([\d.]+)\.exe$').Groups[1].Value) } | select -Last 1
+  $curV = & $ver ([regex]::Match($cur.Name, '_v([\d.]+)\.exe$').Groups[1].Value)
+} elseif ($verLine) { $curV = & $ver ([regex]::Match($verLine, 'version=([\d.]+)').Groups[1].Value) }
+else { exit 0 }
 $newV = & $ver $rel.tag_name
 if ($newV -le $curV) { exit 0 }
 $asset = @($rel.assets) | ? { $_.name -like '*_dist.zip' } | select -First 1
 if (-not $asset) { exit 0 }
 # 프로그램이 켜져 있으면 exe를 바꿀 수 없음
-$run = Get-Process -ErrorAction SilentlyContinue | ? { try { $_.Path -and [IO.Path]::GetDirectoryName($_.Path) -eq $here -and [IO.Path]::GetFileName($_.Path) -match '_v[\d.]+\.exe$' } catch { $false } }   # 앱 서버만 (이 스크립트를 부른 전용 창은 제외)
+$run = Get-Process -ErrorAction SilentlyContinue | ? { try { $_.Path -and @($here, (Join-Path $here '.engine')) -contains [IO.Path]::GetDirectoryName($_.Path) -and [IO.Path]::GetFileName($_.Path) -match '_v[\d.]+\.exe$' } catch { $false } }   # 앱 서버만 (이 스크립트를 부른 전용 창은 제외)
 if ($run) { & $ask "새 버전 $($rel.tag_name)이 나왔습니다 (지금 v$curV).`n프로그램이 켜져 있어서 지금은 업데이트할 수 없습니다. 프로그램을 끄고 실행기를 다시 실행하세요." 'OK' 'Information' | Out-Null; exit 0 }
 if ((& $ask "새 버전 $($rel.tag_name)이 나왔습니다 (지금 v$curV).`n지금 업데이트할까요?`n`n프리셋 · 기록 · 설정 · 내 캐릭터는 그대로 유지됩니다.") -ne 'Yes') { exit 0 }
 $tmp = Join-Path $env:TEMP ("app_update_" + [guid]::NewGuid().ToString('N'))
@@ -37,7 +41,7 @@ try {
   [IO.Compression.ZipFile]::ExtractToDirectory($zip, $ex)
   # zip 안은 배포용 폴더 하나 — 그 안의 파일을 이 폴더로 (덮어쓰기)
   $root = $ex; $dirs = @([IO.Directory]::GetDirectories($ex)); if ($dirs.Count -eq 1 -and -not [IO.Directory]::GetFiles($ex).Count) { $root = $dirs[0] }
-  $newExe = [IO.Directory]::GetFiles($root, '*_v*.exe') | select -First 1
+  $newExe = @([IO.Directory]::GetFiles($root, '*_v*.exe')) + @([IO.Directory]::GetFiles($root, '*.exe')) | select -First 1   # 예전: 엔진 exe · 지금: 창 exe 하나
   if (-not $newExe) { throw "배포본에 exe가 없습니다" }
   foreach ($f in [IO.Directory]::GetFiles($root, '*', 'AllDirectories')) {
     $rel2 = $f.Substring($root.Length).TrimStart('\'); $dst = Join-Path $here $rel2
