@@ -30,7 +30,7 @@ BooruComfy에서 갈라져 나온 **일반 일러스트(SFW) 생성 도구**입�
   - `tidy.js`: 프롬프트 자동 정리(중복 제거 · 분류 정렬 · 가중치 과잉 정리) — 다른 생성 보정보다 먼저 불러와 가장 안쪽(마지막)에서 실행. 분류는 BC_TAGS 그룹 제목·KEY·state.defaultCharacters(body/wear)
   - `faceless.js`: 긍정에 faceless male이 있으면 인원 태그 바로 뒤로 옮기고 1.3, 부정 male face 1.3 (모든 /api/generate)
   - `fast.js`: 빠른 모드(기본 켜짐) — 생성 직전 숨김 사본 워크플로 `이름~fast`(FaceDetailer 등 *Detailer* steps ≤12, UltimateSDUpscale steps ≤8, KSampler는 그대로)로 보냄. charfolder보다 먼저 불러와야(안쪽) 캐릭터용 사본(@)의 빠른 사본을 씀. 같은 시드 비교 약 25% 단축
-  - `queue.js`: 생성 우선순위 — 대기열 창(맨 앞·맨 뒤·취소·중단)과 '새 생성은 맨 앞으로'. ComfyUI에 순서 변경이 없어 /comfy/queue delete 후 같은 prompt_id로 /comfy/prompt(front) 재등록
+  - `queue.js`: 예상 완료 시간(대기열 줄 · 대기열 창, 작업 그래프의 인원·steps로 키를 만들어 localStorage `bc_eta_v1`에 이 PC 실제 시간 학습, `window.BC_ETA`) + 생성 우선순위 — 대기열 창(맨 앞·맨 뒤·취소·중단)과 '새 생성은 맨 앞으로'. ComfyUI에 순서 변경이 없어 /comfy/queue delete 후 같은 prompt_id로 /comfy/prompt(front) 재등록
   - `patch\shell\`: 전용 창 프로그램(WebView2, C#5, Windows 기본 csc) — AppShell.cs + build_shell.ps1, make.ps1이 엔진 exe를 넣은 `Little Light.exe`를 만들고 폴더의 엔진 exe는 지움. lib\에 WebView2 SDK(NuGet Microsoft.Web.WebView2) 부품. 시험은 `--port 7874`, 기록은 %LOCALAPPDATA%\LittleLight\shell.log
   - `editor.js`: 편집 탭 — 누끼(ComfyUI 기본 LoadBackgroundRemovalModel·RemoveBackground(BiRefNet) → InvertMask → JoinImageWithAlpha), /comfy/prompt로 직접 보냄(기록에 안 남음), 다듬기·배경·다운로드는 브라우저 canvas
   - `regen.js`: 다시 생성 (생성 결과 아래·상세 창 버튼, `window.BC_REGEN`) — 연작 칸의 ↻는 series.js 안 `regenSlot`

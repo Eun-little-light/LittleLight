@@ -4,6 +4,7 @@
 //  - 순서 바꾸기: ComfyUI에는 순서 변경 기능이 없어서, 작업을 대기열에서 빼고 같은 작업 번호(prompt_id)로 앞/뒤에 다시 넣음
 //    → 앱의 진행 표시·결과 연결·연작/시퀀스 칸은 그대로 이어짐
 //  - '새 생성은 맨 앞으로': 앱에서 넣는 생성(/api/generate)을 넣자마자 맨 앞으로. 연작/시퀀스처럼 한꺼번에 넣으면 그 묶음의 순서는 유지
+//  - 예상 완료 시간: 대기열 줄에 '약 N분 뒤 모두 완료 (시각)', 대기열 창에 작업마다 한 장 시간·완료 시각 (빠른 모드 작업은 ⚡ 표시, steps가 줄어 짧게 계산)
 (() => {
   const KEY = "bc_queue_front";
   const ls = { get: (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
@@ -38,6 +39,7 @@
   api = async (url, opt) => {
     const r = await _api(url, opt);
     if (url === "/api/generate" && frontNew && r && r.prompt_id) { batch.push(r.prompt_id); clearTimeout(timer); timer = setTimeout(flush, 500); }
+    else if (url === "/api/generate" && r && r.prompt_id) { clearTimeout(timer); timer = setTimeout(refresh, 400); }   // 넣자마자 예상 완료 시간 갱신
     return r;
   };
 
@@ -79,12 +81,64 @@
     const title = isEdit ? "✂ 누끼 (배경 제거)" : save ? String(save.inputs.filename_prefix || "").replace(/^Claude\//, "") : "작업";
     return { title, sub: isEdit ? "편집 탭" : (ks ? "시드 " + ks.inputs.seed + " · " : "") + text.slice(0, 120) };
   }
+  // ---------- 예상 완료 시간 ----------
+  //  작업마다 실제로 들어간 설정(인원 · KSampler/얼굴 보정/업스케일 steps · IPAdapter)으로 한 장 시간을 어림
+  //  → 빠른 모드로 넣은 작업은 steps가 줄어 있어서 자동으로 짧게 계산됨
+  //  이 PC에서 끝난 생성 시간(ComfyUI 기록)을 같은 설정끼리 배워서 점점 정확해짐 (처음엔 RTX 3080 측정값)
+  const KEY_T = "bc_eta_v1", KEY_S = "bc_eta_seen";
+  let times = ls.get(KEY_T, {}); const seen = new Set(ls.get(KEY_S, []));
+  const runSeen = new Map();   // 실행 중 작업을 처음 본 시각
+  function sig(prompt) {
+    let ks = 0, fd = 0, up = 0, upb = 1, ipa = false, edit = false, text = "";
+    for (const n of Object.values(prompt || {})) {
+      if (!n || !n.inputs) continue; const c = String(n.class_type || "");
+      if (c === "RemoveBackground") edit = true;
+      if (/^KSampler/.test(c)) ks = Math.max(ks, +n.inputs.steps || 0);
+      if (/Detailer/.test(c)) fd = Math.max(fd, +n.inputs.steps || 0);
+      if (/^UltimateSDUpscale/.test(c)) { up = Math.max(up, +n.inputs.steps || 0); upb = +n.inputs.upscale_by || 1; }
+      if (/IPAdapter/.test(c)) ipa = true;
+      if (c === "CLIPTextEncode" && !text && typeof n.inputs.text === "string") text = n.inputs.text;
+    }
+    if (edit) return { key: "edit", edit: true };
+    let people = 0; text.replace(/(?:^|[\s,(])(\d)\+?(?:girls?|boys?|others?)\b/gi, (m, d) => { people += +d; return m; });
+    people = Math.min(Math.max(people, 1), 6);
+    const fast = (fd > 0 && fd <= 12) || (up > 0 && up <= 8);
+    return { key: `${people}|${ks}|${fd}|${up}|${upb}|${ipa ? 1 : 0}`, people, fast, ipa };
+  }
+  const guess = (s) => s.edit ? 8 : (s.fast ? 43 + 6 * (s.people - 1) : 58 + 8 * (s.people - 1)) + (s.ipa ? 5 : 0);
+  const est = (prompt) => { const s = sig(prompt), t = times[s.key]; return t && t.n ? t.avg : guess(s); };
+  async function learn() {
+    let h; try { const r = await fetch("/comfy/history?max_items=8"); if (!r.ok) return; h = await r.json(); } catch { return; }
+    let changed = false;
+    for (const [id, v] of Object.entries(h || {})) {
+      if (seen.has(id)) continue; seen.add(id); changed = true;
+      const msgs = (v.status && v.status.messages) || []; let st = 0, en = 0;
+      for (const m of msgs) { if (m[0] === "execution_start") st = m[1].timestamp; if (m[0] === "execution_success") en = m[1].timestamp; }
+      const g = v.prompt && v.prompt[2]; if (!st || !en || !g) continue;
+      const d = (en - st) / 1000, s = sig(g), e = est(g);
+      if (d < 2 || d > e * 3 + 30) continue;   // 모델 처음 올리기 · 캐시로 건너뛴 것 같은 튀는 값은 빼고
+      const t = times[s.key]; times[s.key] = t && t.n ? { avg: t.avg * 0.7 + d * 0.3, n: t.n + 1 } : { avg: d, n: 1 };
+    }
+    if (changed) { ls.set(KEY_T, times); ls.set(KEY_S, [...seen].slice(-300)); }
+  }
+  const fmtDur = (s) => { s = Math.max(0, Math.round(s)); const m = Math.floor(s / 60); return m ? `${m}분${s % 60 ? " " + (s % 60) + "초" : ""}` : `${s}초`; };
+  const fmtAt = (s) => new Date(Date.now() + s * 1000).toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" });
+  window.BC_ETA = { sig, est, guess, get times() { return times; } };
+
   async function refresh() {
     let q; try { q = await getQ(); } catch { return; }
+    learn();
     const run = q.queue_running || [], pend = (q.queue_pending || []).slice().sort((a, b) => a[0] - b[0]);
-    rows.forEach((d) => (d.querySelector(".n b").textContent = run.length + pend.length ? `${run.length ? "실행 1" : "실행 0"} · 대기 ${pend.length}` : "비어 있음"));
+    // 완료까지 남은 시간: 실행 중(어림 - 지난 시간) + 기다리는 작업 합
+    const now = Date.now(); for (const id of [...runSeen.keys()]) if (!run.some((e) => e[1] === id)) runSeen.delete(id);
+    let acc = 0; const done = new Map();
+    for (const e of run) { if (!runSeen.has(e[1])) runSeen.set(e[1], now); const t = est(e[2]); acc += Math.max(t - (now - runSeen.get(e[1])) / 1000, t * 0.1); done.set(e[1], acc); }
+    for (const e of pend) { acc += est(e[2]); done.set(e[1], acc); }
+    const etaTxt = acc > 0 ? ` · <span style="white-space:nowrap">약 ${fmtDur(acc)} 뒤 모두 완료 (${fmtAt(acc)})</span>` : "";
+    rows.forEach((d) => (d.querySelector(".n b").innerHTML = run.length + pend.length ? `${run.length ? "실행 1" : "실행 0"} · 대기 ${pend.length}${etaTxt}` : "비어 있음"));
     if (!dlg || dlg.classList.contains("hidden")) return;
-    const item = (e, i, isRun) => { const d = describe(e[2], e[3]);
+    const item = (e, i, isRun) => { const d = describe(e[2], e[3]), s = sig(e[2]), left = done.get(e[1]) || 0;
+      d.sub = `${s.fast ? "⚡ 빠른 모드 · " : ""}한 장 약 ${fmtDur(est(e[2]))} · ${fmtAt(left)}쯤 완료 · ` + d.sub;
       return `<div class="bc-qi${isRun ? " run" : ""}"><span class="no">${isRun ? "▶" : i + 1}</span><span class="tx"><b>${esc2(d.title)}</b><small>${esc2(d.sub)}</small></span>` +
         (isRun ? `<button type="button" class="mini danger-ghost" data-a="stop">중단</button>` :
           `<button type="button" class="mini" data-a="front" data-id="${e[1]}"${i === 0 ? " disabled" : ""}>맨 앞으로</button><button type="button" class="mini" data-a="back" data-id="${e[1]}"${i === pend.length - 1 ? " disabled" : ""}>맨 뒤로</button><button type="button" class="mini danger-ghost" data-a="cancel" data-id="${e[1]}">취소</button>`) + `</div>`; };
@@ -93,7 +147,7 @@
   function openDlg() {
     if (!dlg) {
       dlg = document.createElement("div"); dlg.className = "bc-qdlg hidden";
-      dlg.innerHTML = `<div class="in"><div class="hd"><b>생성 대기열 — 우선순위</b><span class="muted" style="font-size:12px;flex:1">ComfyUI 전체 대기열 (다른 프로그램에서 넣은 작업 포함)</span><button type="button" class="mini" data-x>닫기</button></div><div class="bd"></div></div>`;
+      dlg.innerHTML = `<div class="in"><div class="hd"><b>생성 대기열 — 우선순위</b><span class="muted" style="font-size:12px;flex:1">ComfyUI 전체 대기열 (다른 프로그램에서 넣은 작업 포함) · 예상 시간은 이 PC에서 끝난 생성 기록으로 어림</span><button type="button" class="mini" data-x>닫기</button></div><div class="bd"></div></div>`;
       document.body.append(dlg);
       dlg.onclick = async (e) => {
         if (e.target === dlg || e.target.closest("[data-x]")) { dlg.classList.add("hidden"); clearInterval(live); return; }
