@@ -7,7 +7,8 @@ param(
   [Parameter(Mandatory = $true)][int]$Port, [ValidateSet("sun", "ghost")][string]$Icon = "sun",
   [Parameter(Mandatory = $true)][string]$Out, [string]$Ver = "1.0.0",
   [string]$Engine = "",          # 배포용: 이 엔진 exe를 안에 넣음 (실행할 때 .engine 숨김 폴더에 풀림)
-  [string]$DataName = "LittleLightData"
+  [string]$DataName = "LittleLightData",
+  [switch]$Clean                 # 배포용: 켤 때 폴더의 예전 엔진 exe(*_v*.exe)를 지움 (내 빌드는 안 지움)
 )
 $ErrorActionPreference = 'Stop'
 $S = $PSScriptRoot; $lib = Join-Path $S "lib"
@@ -29,6 +30,7 @@ static class Config {
   public static string ExeHint = "$(& $esc $Hint)";
   public static int Port = $Port;
   public static bool Embedded = $(if ($Engine) { "true" } else { "false" });
+  public static bool CleanOld = $(if ($Clean) { "true" } else { "false" });
   public static string EngineFile = "$(if ($Engine) { & $esc ([IO.Path]::GetFileName($Engine)) })";
   public static string DataName = "$(& $esc $DataName)";
 }

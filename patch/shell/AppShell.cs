@@ -227,7 +227,7 @@ class ShellForm : Form
                 }
             }
             foreach (var old in Directory.GetFiles(dir, "*.exe")) if (!string.Equals(old, exe, StringComparison.OrdinalIgnoreCase)) { try { File.Delete(old); } catch { } }   // 예전 엔진
-            foreach (var old in Directory.GetFiles(Program.Home, "*.exe"))   // 예전 방식(엔진이 폴더에 따로 있던 것) 정리
+            if (Config.CleanOld) foreach (var old in Directory.GetFiles(Program.Home, "*.exe"))   // 배포용: 예전 방식(엔진이 폴더에 따로 있던 것) 정리
                 if (Regex.IsMatch(Path.GetFileName(old), Config.ExePattern, RegexOptions.IgnoreCase)) { try { File.Delete(old); } catch { } }
             var data = Path.Combine(Program.Home, Config.DataName);
             Directory.CreateDirectory(data);

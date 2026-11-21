@@ -17,3 +17,7 @@ ref_witch.png
 
 # 내 빌드 전용 캐릭터 이름 (저장소에 올리지 않음)
 patch/charnames_local.js
+
+# 창 exe가 엔진을 풀어 두는 숨김 폴더 · 옮겨 둔 예전 버전
+.engine/
+이전 버전/
